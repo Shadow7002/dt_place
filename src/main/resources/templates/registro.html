@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de nuevo usuario</title>
+</head>
+<body>
+
+<div layout:fragment="contenido_dinamico">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="bg-white shadow rounded p-5">
+                <h3>Registro de Usuario</h3>
+                <form th:action="@{''}" method="post" th:object="${usuario}" >
+                    <div class="mb-2">
+                        <label>Nombres</label>
+                        <input type="text"
+                               id="nombres"
+                               th:field="*{nombres}"
+                               class="form-control"
+                               th:errorclass="is-invalid"
+                        >
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('nombres')}"
+                             th:errors="*{nombres}"
+                        >
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label>Apellidos</label>
+                        <input type="text"
+                               id="apellidos"
+                               th:field="*{apellidos}"
+                               class="form-control"
+                               th:errorclass="is-invalid"
+                        >
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('apellidos')}"
+                             th:errors="*{apellidos}"
+                        >
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label>Email</label>
+                        <input type="email"
+                               id="email"
+                               th:field="*{email}"
+                               class="form-control"
+                               th:errorclass="is-invalid"
+                        >
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('email')}"
+                             th:errors="*{email}"
+                        >
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label>Contraseña</label>
+                        <input type="password"
+                               id="password1"
+                               th:field="*{password1}"
+                               class="form-control"
+                               th:errorclass="is-invalid"
+                        >
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('password1')}"
+                             th:errors="*{password1}"
+                        >
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label>Repite la contraseña</label>
+                        <input type="password"
+                               id="password2"
+                               th:field="*{password2}"
+                               class="form-control"
+                               th:errorclass="is-invalid"
+                        >
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('password2')}"
+                             th:errors="*{password2}"
+                        >
+                        </div>
+                    </div>
+
+                    <div class="text-end mt-3">
+                        <a href="/login" class="btn btn-ligth">Cancelar</a>
+                        <button class="btn btn-primary">Registrarme</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
