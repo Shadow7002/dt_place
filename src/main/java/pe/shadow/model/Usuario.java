@@ -9,32 +9,35 @@ import lombok.Data;
 @Entity
 public class Usuario {
 
+    public interface Registro {}
+    public interface EdicionAdmin {}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="idusuario")
     private Integer id;
 
-    @NotBlank
+    @NotBlank(groups = {Registro.class, EdicionAdmin.class})
     private String nombres;
 
-    @NotBlank
+    @NotBlank(groups = {Registro.class, EdicionAdmin.class})
     private String apellidos;
 
     @Column(name = "nom_completo")
     private String nombreCompleto;
 
-    @NotBlank
-    @Email
+    @NotBlank(groups = {Registro.class, EdicionAdmin.class})
+    @Email(groups = {Registro.class, EdicionAdmin.class})
     private String email;
 
     private String password;
 
     @Transient
-    @NotBlank
+    @NotBlank(groups = Registro.class)
     private String password1;
 
     @Transient
-    @NotBlank
+    @NotBlank(groups = Registro.class)
     private String password2;
 
     public enum Rol{
@@ -47,7 +50,9 @@ public class Usuario {
 
     @PrePersist
     @PreUpdate
-    void  asignarNombreCompleto(){ nombreCompleto = nombres + ' ' + apellidos;}
+    void asignarNombreCompleto() {
+        nombreCompleto = nombres + ' ' + apellidos;
+    }
 
     public Integer getId() {
         return id;

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}"
+      xmlns:sd="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de usuarios</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script>
+        function eliminar(e)
+        {
+            var rpta = confirm("¿Estás seguro de eliminar el libro?");
+
+            if(rpta)
+            {
+                console.log('e', e.nextElementSibling.submit());
+            }
+        }
+    </script>
+</head>
+<body>
+    <div layout:fragment="contenido_dinamico">
+        <div class="container">
+            <h1>Gestión de Usuarios</h1>
+
+            <form action="" class="my-3">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="input-group">
+                            <input type="search" class="form-control" name="apellidos" id="apellidos" placeholder="Buscar por apellidos">
+                            <button class="btn btn-success" onclick="form-control">
+                                <i class="fas fa-search">Buscar..</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-responsive-sm mt-3">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th><a class="sorted" sd:pagination-sort="id" >ID</a></th>
+                        <th><a class="sorted" sd:pagination-sort="nombres" >NOMBRES</a></th>
+                        <th><a class="sorted" sd:pagination-sort="apellidos" >APELLIDOS</a></th>
+                        <th><a class="sorted" sd:pagination-sort="email" >EMAIL</a></th>
+                        <th><a class="sorted" sd:pagination-sort="rol" >ROL</a></th>
+                        <th>OPCIONES</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each ="usuario : ${usuarios}" th:object="${usuario}">
+                        <td>
+                            <div th:text="*{id}"></div>
+                        </td>
+                        <td>
+                            <div th:text="*{nombres}"></div>
+                        </td>
+                        <td>
+                            <div th:text="*{apellidos}"></div>
+                        </td>
+                        <td>
+                            <div th:text="*{email}"></div>
+                        </td>
+                        <td>
+                            <div th:text="*{rol}"></div>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/admin/usuarios/view/{id}(id=*{id}) }" class="btn btn-primary" title="Ver">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                                <a th:href="@{/admin/usuarios/editar/{id}(id=*{id})}" class="btn btn-success" title="Editar">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+
+                                <a href="#" class="btn btn-danger" onclick="eliminar(this)">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+
+                                <form th:action="@{/admin/usuarios/eliminar/{id} (id=*{id})}" method="post" class="d-none"></form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div sd:pagination-summary="">info</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <nav class="pull-right">
+                            <ul class="pagination" sd:pagination-split="7" sd:pagination="full">
+                                <!-- Pagination created by SpringDataDialect, this content is just for mockup -->
+                                <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                                <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" integrity="sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFpStnqpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</body>
+</html>
