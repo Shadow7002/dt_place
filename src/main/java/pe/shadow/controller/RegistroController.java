@@ -28,7 +28,7 @@ public class RegistroController {
     }
 
     @PostMapping("/registro")
-    public String crear(Model model, @Validated Usuario usuario, BindingResult br, RedirectAttributes ra){
+    public String crear(Model model, @Validated(Usuario.Registro.class) Usuario usuario, BindingResult br, RedirectAttributes ra){
 
         if (br.hasErrors()){
             model.addAttribute("usuario", usuario);
@@ -43,7 +43,6 @@ public class RegistroController {
             br.rejectValue("email", "EmailAlredyExists");
         }
 
-        //validar las contraseñas 1 y 2 coincidan
         if (!usuario.getPassword1().equals(usuario.getPassword2())){
             br.rejectValue("password1", "PasswordNotEquals");
         }
