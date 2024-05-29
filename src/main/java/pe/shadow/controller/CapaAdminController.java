@@ -117,4 +117,15 @@ public class CapaAdminController {
         ra.addFlashAttribute("msgExito", "La capacitación se actualizó correctamente");
         return "redirect:/admin/capas";
     }
+
+    @PostMapping("/eliminar/{id}")
+    String eliminar(@PathVariable("id") Integer id, RedirectAttributes ra)
+    {
+        Capa capa = capaRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("ID inválido: " + id));
+        capa.setEliminado(1);
+
+        capaRepository.save(capa);
+        ra.addFlashAttribute("msgExito", "Capacitación elimina exitosamente");
+        return "redirect:/admin/capas";
+    }
 }

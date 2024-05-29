@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 public class Usuario {
@@ -48,8 +50,22 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private Rol rol;
 
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaActualizacion;
+
     @PrePersist
+    void prePersist(){
+        asignarNombreCompleto();
+        fechaCreacion = LocalDateTime.now();
+    }
     @PreUpdate
+    void preUdate()
+    {
+        asignarNombreCompleto();
+        fechaActualizacion = LocalDateTime.now();
+    }
+
+
     void asignarNombreCompleto() {
         nombreCompleto = nombres + ' ' + apellidos;
     }
@@ -124,6 +140,22 @@ public class Usuario {
 
     public void setRol(Rol rol) {
         this.rol = rol;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getFechaActualizacion() {
+        return fechaActualizacion;
+    }
+
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
+        this.fechaActualizacion = fechaActualizacion;
     }
 
     public Usuario() {
