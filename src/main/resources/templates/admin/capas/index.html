@@ -28,12 +28,14 @@
             }
         }
     </script>
+
 </head>
 <body>
 <div layout:fragment="contenido_dinamico">
     <div class="container">
         <h1>Gestión de Capacitaciones</h1>
 
+        <!-- Barra de búsqueda y botón nuevo -->
         <form action="" class="my-3">
             <div class="row">
                 <div class="col-lg-6 col-md-6">
@@ -50,6 +52,7 @@
             </div>
         </form>
 
+        <!-- Tabla -->
         <div class="table-responsive-sm mt-3">
             <table class="table table-hover">
                 <thead>
@@ -65,7 +68,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each ="capa : ${capas}" th:object="${capa}">
+                <tr th:each ="capa : ${capas}" th:object="${capa}" th:if="${capa.eliminado == 0}">
                     <td>
                         <a th:href="@{/media/{rutaImagen} (rutaImagen=*{rutaImagen})}" data-fancybox>
                             <img th:src="@{/media/{rutaImagen} (rutaImagen=*{rutaImagen})}"
@@ -103,11 +106,11 @@
                                 <i class="fa fa-edit"></i>
                             </a>
 
-                            <a href="#" class="btn btn-danger">
+                            <a href="#" class="btn btn-danger" onclick="eliminar(this)">
                                 <i class="fa fa-trash"></i>
                             </a>
 
-                            <form th:action="@{/admin/capas/eliminar/{id} (id=*{id})}" method="post" class="d-none"></form>
+                            <form th:action="@{/admin/capas/eliminar/{id}(id=*{id})}" method="post" class="d-none"></form>
                         </div>
                     </td>
                 </tr>

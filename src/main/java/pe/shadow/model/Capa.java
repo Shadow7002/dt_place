@@ -64,6 +64,7 @@ public class Capa {
     @PrePersist
     void prePersistFechaCreacion()
     {
+        eliminado = 0;
         fechaCreacion = LocalDateTime.now();
     }
     @PreUpdate
@@ -71,6 +72,8 @@ public class Capa {
     {
         fechaActualizacion = LocalDateTime.now();
     }
+
+    private Integer eliminado;
 
     public Capa(){}
 
@@ -160,6 +163,14 @@ public class Capa {
 
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
         this.fechaActualizacion = fechaActualizacion;
+    }
+
+    public Integer getEliminado() {
+        return eliminado;
+    }
+
+    public void setEliminado(Integer eliminado) {
+        this.eliminado = eliminado;
     }
 
     public MultipartFile getImagen() {

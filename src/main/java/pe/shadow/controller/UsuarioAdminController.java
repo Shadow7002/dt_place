@@ -74,12 +74,4 @@ public class UsuarioAdminController {
         ra.addFlashAttribute("msgExito", "El usuario se actualizó correctamente");
         return "redirect:/admin/usuarios";
     }
-
-    @PostMapping("/eliminar/{id}")
-    String eliminar(@PathVariable("id") Integer id, RedirectAttributes ra)
-    {
-        usuarioRepository.deleteById(id);
-        ra.addFlashAttribute("msgExito", "Usuario eliminado exitosamente");
-        return "redirect:/admin/usuarios";
-    }
 }
