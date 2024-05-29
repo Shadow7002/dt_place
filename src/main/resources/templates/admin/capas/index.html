@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}"
+      xmlns:sd="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de capacitaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+
+    <script>
+        function eliminar(e)
+        {
+            var rpta = confirm("¿Estás seguro de eliminar el libro?");
+
+            if(rpta)
+            {
+                console.log('e', e.nextElementSibling.submit());
+            }
+        }
+    </script>
+</head>
+<body>
+<div layout:fragment="contenido_dinamico">
+    <div class="container">
+        <h1>Gestión de Capacitaciones</h1>
+
+        <form action="" class="my-3">
+            <div class="row">
+                <div class="col-lg-6 col-md-6">
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="nombre" id="nombre" placeholder="Buscar por nombre">
+                        <button class="btn btn-primary" onclick="form-control">
+                            <i class="fas fa-search">Buscar..</i>
+                        </button>
+                        <a href="/admin/capas/nuevo" class="btn btn-success">
+                            Nueva<i class="fas fa-plus"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive-sm mt-3">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th><a class="sorted" sd:pagination-sort="id" >ID</a></th>
+                    <th><a class="sorted" sd:pagination-sort="nombre" >Título</a></th>
+                    <th><a class="sorted" sd:pagination-sort="instructor" >Instructor</a></th>
+                    <th><a class="sorted" sd:pagination-sort="estado" >Estado</a></th>
+                    <th><a class="sorted" sd:pagination-sort="fecIni" >F. Inicio</a></th>
+                    <th><a class="sorted" sd:pagination-sort="fecFin" >F. Fin</a></th>
+                    <th>OPCIONES</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each ="capa : ${capas}" th:object="${capa}">
+                    <td>
+                        <a th:href="@{/media/{rutaImagen} (rutaImagen=*{rutaImagen})}" data-fancybox>
+                            <img th:src="@{/media/{rutaImagen} (rutaImagen=*{rutaImagen})}"
+                                 th:if="*{rutaImagen ne null}"
+                                 width="120"
+                                 class="img-thumbnail"
+                                 alt="">
+                        </a>
+                    </td>
+                    <td>
+                        <div th:text="*{id}"></div>
+                    </td>
+                    <td>
+                        <div th:text="*{nombre}"></div>
+                    </td>
+                    <td>
+                        <div th:text="*{instructor}"></div>
+                    </td>
+                    <td>
+                        <div th:text="*{estado}"></div>
+                    </td>
+                    <td>
+                        <div th:text="${#dates.format(capa.fecIni, 'dd/MM/yyyy')}"></div>
+                    </td>
+                    <td>
+                        <div th:text="${#dates.format(capa.fecFin, 'dd/MM/yyyy')}"></div>
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adjuntosModal">
+                                <i class="fa fa-file"></i>
+                            </button>
+
+                            <a th:href="@{/admin/capas/editar/{id}(id=*{id})}" class="btn btn-success" title="Editar">
+                                <i class="fa fa-edit"></i>
+                            </a>
+
+                            <a href="#" class="btn btn-danger">
+                                <i class="fa fa-trash"></i>
+                            </a>
+
+                            <form th:action="@{/admin/capas/eliminar/{id} (id=*{id})}" method="post" class="d-none"></form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div sd:pagination-summary="">info</div>
+                </div>
+                <div class="col-sm-6">
+                    <nav class="pull-right">
+                        <ul class="pagination" sd:pagination-split="7" sd:pagination="full">
+                            <!-- Pagination created by SpringDataDialect, this content is just for mockup -->
+                            <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                            <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="modal fade" id="adjuntosModal" tabindex="-1" aria-labelledby="adjuntosModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Recursos</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="archivos">Subir Archivos</label>
+                                <input type="file" accept=".pdf,.docx,.xlsx" multiple id="archivos" name="archivos[]" class="form-control">
+                            </div>
+                            <div class="table-responsive-sm mt-3">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>OPCIONES</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each ="capa : ${capas}" th:object="${capa}">
+                                        <td>
+                                            <div th:text="*{id}"></div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <a th:href="@{/admin/capas/editar/{id}(id=*{id})}" class="btn btn-success" title="Editar">
+                                                    <i class="fa fa-download"></i>
+                                                </a>
+
+                                                <a href="#" class="btn btn-danger" onclick="eliminar(this)">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+
+                                                <form th:action="@{/admin/capas/eliminar/{id} (id=*{id})}" method="post" class="d-none"></form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" integrity="sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFpStnqpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
+</body>
+</html>
