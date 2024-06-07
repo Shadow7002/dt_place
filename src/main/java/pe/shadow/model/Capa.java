@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.hibernate.envers.Audited;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +15,7 @@ import java.util.Date;
 
 @Data
 @Entity
+@Audited
 public class Capa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,6 +62,14 @@ public class Capa {
 
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
+
+    @ManyToOne
+    @JoinColumn(name = "id_usuario_creacion", nullable = false)
+    private Usuario usuarioCreacion;
+
+    @ManyToOne
+    @JoinColumn(name = "id_usuario_actualizacion", nullable = false)
+    private Usuario usuarioActualizacion;
 
     @PrePersist
     void prePersistFechaCreacion()
@@ -181,5 +191,19 @@ public class Capa {
         this.imagen = imagen;
     }
 
+    public Usuario getUsuarioCreacion() {
+        return usuarioCreacion;
+    }
 
+    public void setUsuarioCreacion(Usuario usuarioCreacion) {
+        this.usuarioCreacion = usuarioCreacion;
+    }
+
+    public Usuario getUsuarioActualizacion() {
+        return usuarioActualizacion;
+    }
+
+    public void setUsuarioActualizacion(Usuario usuarioActualizacion) {
+        this.usuarioActualizacion = usuarioActualizacion;
+    }
 }

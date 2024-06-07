@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,9 +13,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.shadow.model.Capa;
+import pe.shadow.model.Usuario;
 import pe.shadow.repository.CapaRepository;
+import pe.shadow.repository.UsuarioRepository;
 import pe.shadow.service.FileSystemStorageService;
+import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.EnumSet;
 import java.util.Optional;
 
 @Controller
@@ -22,6 +28,9 @@ public class CapaAdminController {
 
     @Autowired
     private CapaRepository capaRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private FileSystemStorageService fileSystemStorageService;
@@ -55,7 +64,7 @@ public class CapaAdminController {
     }
 
     @PostMapping("/nuevo")
-    String insertar(Model model, @Validated Capa capa, BindingResult bindingResult, RedirectAttributes ra) {
+    String insertar(Model model, @Validated Capa capa, BindingResult bindingResult, RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails) {
         if (capa.getImagen().isEmpty()) {
             bindingResult.rejectValue("imagen", "MultipartNotEmpty");
         }
@@ -68,6 +77,16 @@ public class CapaAdminController {
 
         String rutaImagen = fileSystemStorageService.store(capa.getImagen());
         capa.setRutaImagen(rutaImagen);
+
+        Usuario usuario = usuarioRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        capa.setUsuarioCreacion(usuario);
+        capa.setUsuarioActualizacion(usuario);
+
+        if (!EnumSet.allOf(Capa.Estado.class).contains(capa.getEstado())) {
+            throw new IllegalArgumentException("Estado inválido: " + capa.getEstado());
+        }
+
         capaRepository.save(capa);
 
         ra.addFlashAttribute("msgExito", "La capacitación fue registrada exitosamente");
@@ -83,7 +102,7 @@ public class CapaAdminController {
     }
 
     @PostMapping("/editar/{id}")
-    String actualizar(Model model, @PathVariable("id") Integer id,@Validated Capa capa, BindingResult bindingResult, RedirectAttributes ra)
+    String actualizar(Model model, @PathVariable("id") Integer id,@Validated Capa capa, BindingResult bindingResult, RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails)
     {
         if (capa.getImagen().isEmpty())
         {
@@ -112,6 +131,11 @@ public class CapaAdminController {
         //3. guardar en bd
         String rutaImagen = fileSystemStorageService.store(capa.getImagen());
         capaFromDB.setRutaImagen(rutaImagen);
+
+        Usuario usuario = usuarioRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        capaFromDB.setUsuarioActualizacion(usuario);
+
         capaRepository.save(capaFromDB);
 
         ra.addFlashAttribute("msgExito", "La capacitación se actualizó correctamente");
