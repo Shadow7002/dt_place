@@ -18,173 +18,261 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
 
     <script>
-        function eliminar(e)
-        {
+        // Función eliminar capacitacion
+        function eliminar(e) {
             var rpta = confirm("¿Estás seguro de eliminar el libro?");
-
-            if(rpta)
-            {
+            if (rpta) {
                 console.log('e', e.nextElementSibling.submit());
             }
         }
-    </script>
 
+        // Definir idCapa en un ámbito accesible
+        let idCapa;
+
+        // Actualizar idCapa y cargar archivos
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const adjuntosModal = document.getElementById('adjuntosModal');
+            adjuntosModal.addEventListener('show.bs.modal', (event) => {
+                const button = event.relatedTarget;
+                idCapa = button.getAttribute('data-id');
+                const idCapaInput = adjuntosModal.querySelector('#idCapa');
+                idCapaInput.value = idCapa;
+                loadFiles(idCapa);
+            });
+        });
+
+        // Función para cargar la lista de archivos
+        function loadFiles(idCapa) {
+            fetch(`/api/archivos/${idCapa}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la solicitud: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const archivoList = document.getElementById('archivoList');
+                    archivoList.innerHTML = '';
+                    data.forEach(archivo => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${archivo.nombre}</td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="/descargar/${archivo.id}" class="btn btn-success" title="Descargar">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    <button class="btn btn-danger" onclick="eliminarArchivo(${archivo.id})">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        archivoList.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar archivos:', error);
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const uploadForm = document.getElementById('uploadForm');
+
+            // Manejar la subida de archivos
+            uploadForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(uploadForm);
+                formData.append('idCapa', idCapa); // Añadir idCapa al formData
+
+                // Log de formData para debugging
+                for (let [key, value] of formData.entries()) {
+                    console.log(key, value);
+                }
+
+                fetch('/api/archivos/subir', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.ok) {
+                        loadFiles(idCapa); // Llama a loadFiles con idCapa
+                        uploadForm.reset();
+                    } else {
+                        alert('Error al subir el archivo');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al subir el archivo:', error);
+                });
+            });
+
+            // Función para eliminar un archivo
+            window.eliminarArchivo = function(id) {
+                if (confirm('¿Estás seguro de que quieres eliminar este archivo?')) {
+                    fetch(`/api/archivos/eliminar/${id}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            loadFiles(idCapa); // Llama a loadFiles con idCapa
+                        } else {
+                            alert('Error al eliminar el archivo');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al eliminar el archivo:', error);
+                    });
+                }
+            }
+        });
+    </script>
 </head>
 <body>
-<div layout:fragment="contenido_dinamico">
-    <div class="container">
-        <h1>Gestión de Capacitaciones</h1>
+    <div layout:fragment="contenido_dinamico">
+        <div class="container">
+            <h1>Gestión de Capacitaciones</h1>
 
-        <!-- Barra de búsqueda y botón nuevo -->
-        <form action="" class="my-3">
-            <div class="row">
-                <div class="col-lg-6 col-md-6">
-                    <div class="input-group">
-                        <input type="search" class="form-control" name="nombre" id="nombre" placeholder="Buscar por nombre">
-                        <button class="btn btn-primary" onclick="form-control">
-                            <i class="fas fa-search">Buscar..</i>
-                        </button>
-                        <a href="/admin/capas/nuevo" class="btn btn-success">
-                            Nueva<i class="fas fa-plus"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </form>
-
-        <!-- Tabla -->
-        <div class="table-responsive-sm mt-3">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th></th>
-                    <th><a class="sorted" sd:pagination-sort="id" >ID</a></th>
-                    <th><a class="sorted" sd:pagination-sort="nombre" >Título</a></th>
-                    <th><a class="sorted" sd:pagination-sort="instructor" >Instructor</a></th>
-                    <th><a class="sorted" sd:pagination-sort="estado" >Estado</a></th>
-                    <th><a class="sorted" sd:pagination-sort="fecIni" >F. Inicio</a></th>
-                    <th><a class="sorted" sd:pagination-sort="fecFin" >F. Fin</a></th>
-                    <th>OPCIONES</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each ="capa : ${capas}" th:object="${capa}" th:if="${capa.eliminado == 0}">
-                    <td>
-                        <a th:href="@{/media/{rutaImagen} (rutaImagen=*{rutaImagen})}" data-fancybox>
-                            <img th:src="@{/media/{rutaImagen} (rutaImagen=*{rutaImagen})}"
-                                 th:if="*{rutaImagen ne null}"
-                                 width="120"
-                                 class="img-thumbnail"
-                                 alt="">
-                        </a>
-                    </td>
-                    <td>
-                        <div th:text="*{id}"></div>
-                    </td>
-                    <td>
-                        <div th:text="*{nombre}"></div>
-                    </td>
-                    <td>
-                        <div th:text="*{instructor}"></div>
-                    </td>
-                    <td>
-                        <div th:text="*{estado}"></div>
-                    </td>
-                    <td>
-                        <div th:text="${#dates.format(capa.fecIni, 'dd/MM/yyyy')}"></div>
-                    </td>
-                    <td>
-                        <div th:text="${#dates.format(capa.fecFin, 'dd/MM/yyyy')}"></div>
-                    </td>
-                    <td class="text-center">
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adjuntosModal">
-                                <i class="fa fa-file"></i>
+            <!-- Barra de búsqueda y botón nuevo -->
+            <form action="" class="my-3">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="input-group">
+                            <input type="search" class="form-control" name="nombre" id="nombre" placeholder="Buscar por nombre">
+                            <button class="btn btn-primary" onclick="form-control">
+                                <i class="fas fa-search"></i>
                             </button>
-
-                            <a th:href="@{/admin/capas/editar/{id}(id=*{id})}" class="btn btn-success" title="Editar">
-                                <i class="fa fa-edit"></i>
+                            <a href="/admin/capas/nuevo" class="btn btn-success">
+                                <i class="fas fa-plus"></i>
                             </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
-                            <a href="#" class="btn btn-danger" onclick="eliminar(this)">
-                                <i class="fa fa-trash"></i>
+            <!-- Tabla -->
+            <div class="table-responsive-sm mt-3">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID</a></th>
+                        <th>Título</a></th>
+                        <th><a class="sorted" sd:pagination-sort="instructor" >Instructor</a></th>
+                        <th>Estado</a></th>
+                        <th><a class="sorted" sd:pagination-sort="fecIni" >F. Inicio</a></th>
+                        <th><a class="sorted" sd:pagination-sort="fecFin" >F. Fin</a></th>
+                        <th>OPCIONES</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each ="capa : ${capas}" th:object="${capa}" th:if="${capa.eliminado == 0}">
+                        <td>
+                            <a th:href="@{/media/{rutaImagen} (rutaImagen=*{rutaImagen})}" data-fancybox>
+                                <img th:src="@{/media/{rutaImagen} (rutaImagen=*{rutaImagen})}"
+                                     th:if="*{rutaImagen ne null}"
+                                     width="120"
+                                     class="img-thumbnail"
+                                     alt="">
                             </a>
+                        </td>
+                        <td>
+                            <div th:text="*{id}"></div>
+                        </td>
+                        <td>
+                            <div th:text="*{nombre}"></div>
+                        </td>
+                        <td>
+                            <div th:text="*{instructor}"></div>
+                        </td>
+                        <td>
+                            <div th:text="*{estado}"></div>
+                        </td>
+                        <td>
+                            <div th:text="${#dates.format(capa.fecIni, 'dd/MM/yyyy')}"></div>
+                        </td>
+                        <td>
+                            <div th:text="${#dates.format(capa.fecFin, 'dd/MM/yyyy')}"></div>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adjuntosModal" th:data-id="${capa.id}">
+                                    <i class="fa fa-file"></i>
+                                </button>
 
-                            <form th:action="@{/admin/capas/eliminar/{id}(id=*{id})}" method="post" class="d-none"></form>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                                <a th:href="@{/admin/capas/editar/{id}(id=*{id})}" class="btn btn-success" title="Editar">
+                                    <i class="fa fa-edit"></i>
+                                </a>
 
-            <div class="row">
-                <div class="col-sm-6">
-                    <div sd:pagination-summary="">info</div>
-                </div>
-                <div class="col-sm-6">
-                    <nav class="pull-right">
-                        <ul class="pagination" sd:pagination-split="7" sd:pagination="full">
-                            <!-- Pagination created by SpringDataDialect, this content is just for mockup -->
-                            <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-                            <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
+                                <a href="#" class="btn btn-danger" onclick="eliminar(this)">
+                                    <i class="fa fa-trash"></i>
+                                </a>
 
-            <div class="modal fade" id="adjuntosModal" tabindex="-1" aria-labelledby="adjuntosModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Recursos</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="archivos">Subir Archivos</label>
-                                <input type="file" accept=".pdf,.docx,.xlsx" multiple id="archivos" name="archivos[]" class="form-control">
+                                <form th:action="@{/admin/capas/eliminar/{id}(id=*{id})}" method="post" class="d-none"></form>
                             </div>
-                            <div class="table-responsive-sm mt-3">
-                                <table class="table table-hover">
-                                    <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>OPCIONES</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each ="capa : ${capas}" th:object="${capa}">
-                                        <td>
-                                            <div th:text="*{id}"></div>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="btn-group btn-group-sm">
-                                                <a th:href="@{/admin/capas/editar/{id}(id=*{id})}" class="btn btn-success" title="Editar">
-                                                    <i class="fa fa-download"></i>
-                                                </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
-                                                <a href="#" class="btn btn-danger" onclick="eliminar(this)">
-                                                    <i class="fa fa-trash"></i>
-                                                </a>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div sd:pagination-summary="">info</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <nav class="pull-right">
+                            <ul class="pagination" sd:pagination-split="7" sd:pagination="full">
+                                <!-- Pagination created by SpringDataDialect, this content is just for mockup -->
+                                <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                                <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
 
-                                                <form th:action="@{/admin/capas/eliminar/{id} (id=*{id})}" method="post" class="d-none"></form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                <!-- MODAL ADJUNTOS -->
+                <div class="modal fade" id="adjuntosModal" tabindex="-1" aria-labelledby="adjuntosModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Recursos</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <div class="modal-body">
+                                <form id="uploadForm" th:action="@{/api/archivos/subir}" method="post" enctype="multipart/form-data">
+                                    <div class="mb-3 d-flex align-items-center">
+                                        <input type="file" accept=".pdf,.docx,.xlsx" multiple id="archivos" name="archivos" class="form-control">
+                                        <select class="form-select" id="tipoArchivo" name="tipoArchivo">
+                                            <option value="SILABO">Silabo</option>
+                                            <option value="RECURSO">Recurso</option>
+                                        </select>
+                                        <input type="hidden" id="idCapa" name="idCapa" th:value="${capa != null ? capa.id : ''}">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Subir</button>
+                                </form>
+                                <div class="table-responsive-sm mt-3">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="archivoList">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
+        </div>
     </div>
-</div>
 
 
 

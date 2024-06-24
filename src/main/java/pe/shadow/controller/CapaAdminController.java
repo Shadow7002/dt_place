@@ -42,9 +42,9 @@ public class CapaAdminController {
 
         Page<Capa> capas;
         if (nombre != null && !nombre.trim().isEmpty()) {
-            capas = capaRepository.findByNombreContaining(nombre, pageable);
+            capas = capaRepository.findByNombreContainingAndEliminado(nombre,0, pageable);
         } else {
-            capas = capaRepository.findAll(pageable);
+            capas = capaRepository.findByEliminado(0, pageable);
         }
         model.addAttribute("capas", capas);
         return "admin/capas/index";

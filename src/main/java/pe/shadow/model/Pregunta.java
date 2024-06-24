@@ -1,42 +1,27 @@
 package pe.shadow.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-public class Archivo {
+public class Pregunta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="idfile")
+    @Column(name="idpregunta")
     private Integer id;
 
-    @NotNull
-    private Integer idcapa;
+    @ManyToOne
+    @JoinColumn(name = "idcuestionario", nullable = false)
+    private Cuestionario cuestionario;
 
     @NotBlank
-    private String nombre;
+    private String enunciado;
 
-    @NotBlank
-    public enum Tipo{
-        SILABO,
-        RECURSO
-    }
-
-    @Enumerated(EnumType.STRING)
-    private Tipo tipo;
-
-    private byte[] file;
-
-    @Transient
-    private MultipartFile archivo;
+    private Integer eliminado;
 
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
@@ -53,8 +38,6 @@ public class Archivo {
         fechaActualizacion = LocalDateTime.now();
     }
 
-    private Integer eliminado;
-
     @ManyToOne
     @JoinColumn(name = "id_usuario_creacion", nullable = false)
     private Usuario usuarioCreacion;
@@ -63,7 +46,8 @@ public class Archivo {
     @JoinColumn(name = "id_usuario_actualizacion", nullable = false)
     private Usuario usuarioActualizacion;
 
-    public Archivo(){}
+    public Pregunta() {
+    }
 
     public Integer getId() {
         return id;
@@ -73,44 +57,28 @@ public class Archivo {
         this.id = id;
     }
 
-    public Integer getIdcapa() {
-        return idcapa;
+    public Cuestionario getCuestionario() {
+        return cuestionario;
     }
 
-    public void setIdcapa(Integer idcapa) {
-        this.idcapa = idcapa;
+    public void setCuestionario(Cuestionario cuestionario) {
+        this.cuestionario = cuestionario;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getEnunciado() {
+        return enunciado;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setEnunciado(String enunciado) {
+        this.enunciado = enunciado;
     }
 
-    public Tipo getTipo() {
-        return tipo;
+    public Integer getEliminado() {
+        return eliminado;
     }
 
-    public void setTipo(Tipo tipo) {
-        this.tipo = tipo;
-    }
-
-    public byte[] getFile() {
-        return file;
-    }
-
-    public void setFile(byte[] file) {
-        this.file = file;
-    }
-
-    public MultipartFile getArchivo() {
-        return archivo;
-    }
-
-    public void setArchivo(MultipartFile archivo) {
-        this.archivo = archivo;
+    public void setEliminado(Integer eliminado) {
+        this.eliminado = eliminado;
     }
 
     public LocalDateTime getFechaCreacion() {
@@ -127,14 +95,6 @@ public class Archivo {
 
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
         this.fechaActualizacion = fechaActualizacion;
-    }
-
-    public Integer getEliminado() {
-        return eliminado;
-    }
-
-    public void setEliminado(Integer eliminado) {
-        this.eliminado = eliminado;
     }
 
     public Usuario getUsuarioCreacion() {
