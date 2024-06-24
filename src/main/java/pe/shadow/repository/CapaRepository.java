@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 public interface CapaRepository extends JpaRepository<Capa, Integer> {
-    Page<Capa> findByNombreContaining(String nombre, Pageable pageable);
+    Page<Capa> findByNombreContainingAndEliminado(String nombre, int eliminado, Pageable pageable);
+    Page<Capa> findByEliminado(int eliminado, Pageable pageable);
 
     List<Capa> findTop5ByOrderByFechaCreacionDesc();
 }

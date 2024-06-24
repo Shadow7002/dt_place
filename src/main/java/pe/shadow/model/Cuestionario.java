@@ -1,42 +1,27 @@
 package pe.shadow.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-public class Archivo {
+public class Cuestionario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="idfile")
+    @Column(name="idcuestionario")
     private Integer id;
-
-    @NotNull
-    private Integer idcapa;
 
     @NotBlank
     private String nombre;
 
-    @NotBlank
-    public enum Tipo{
-        SILABO,
-        RECURSO
-    }
+    @NotNull
+    private Integer calificacionMaxima;
 
-    @Enumerated(EnumType.STRING)
-    private Tipo tipo;
-
-    private byte[] file;
-
-    @Transient
-    private MultipartFile archivo;
+    private Integer eliminado;
 
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
@@ -53,8 +38,6 @@ public class Archivo {
         fechaActualizacion = LocalDateTime.now();
     }
 
-    private Integer eliminado;
-
     @ManyToOne
     @JoinColumn(name = "id_usuario_creacion", nullable = false)
     private Usuario usuarioCreacion;
@@ -63,7 +46,8 @@ public class Archivo {
     @JoinColumn(name = "id_usuario_actualizacion", nullable = false)
     private Usuario usuarioActualizacion;
 
-    public Archivo(){}
+    public Cuestionario() {
+    }
 
     public Integer getId() {
         return id;
@@ -71,14 +55,6 @@ public class Archivo {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getIdcapa() {
-        return idcapa;
-    }
-
-    public void setIdcapa(Integer idcapa) {
-        this.idcapa = idcapa;
     }
 
     public String getNombre() {
@@ -89,28 +65,20 @@ public class Archivo {
         this.nombre = nombre;
     }
 
-    public Tipo getTipo() {
-        return tipo;
+    public Integer getCalificacionMaxima() {
+        return calificacionMaxima;
     }
 
-    public void setTipo(Tipo tipo) {
-        this.tipo = tipo;
+    public void setCalificacionMaxima(Integer calificacionMaxima) {
+        this.calificacionMaxima = calificacionMaxima;
     }
 
-    public byte[] getFile() {
-        return file;
+    public Integer getEliminado() {
+        return eliminado;
     }
 
-    public void setFile(byte[] file) {
-        this.file = file;
-    }
-
-    public MultipartFile getArchivo() {
-        return archivo;
-    }
-
-    public void setArchivo(MultipartFile archivo) {
-        this.archivo = archivo;
+    public void setEliminado(Integer eliminado) {
+        this.eliminado = eliminado;
     }
 
     public LocalDateTime getFechaCreacion() {
@@ -127,14 +95,6 @@ public class Archivo {
 
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
         this.fechaActualizacion = fechaActualizacion;
-    }
-
-    public Integer getEliminado() {
-        return eliminado;
-    }
-
-    public void setEliminado(Integer eliminado) {
-        this.eliminado = eliminado;
     }
 
     public Usuario getUsuarioCreacion() {

@@ -53,6 +53,9 @@
                     <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                         <a href="/admin/capas" class="nav-link">Capacitaciones</a>
                     </li>
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a href="/admin/cuestionarios" class="nav-link">Cuestionarios</a>
+                    </li>
                 </ul>
 
                 <div sec:authorize="!isAuthenticated()">
