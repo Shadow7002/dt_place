@@ -56,6 +56,12 @@
                     <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                         <a href="/admin/cuestionarios" class="nav-link">Cuestionarios</a>
                     </li>
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a href="/admin/inscripciones" class="nav-link">Inscripciones</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_USUARIO')">
+                        <a href="/capas" class="nav-link">Capacitaciones</a>
+                    </li>
                 </ul>
 
                 <div sec:authorize="!isAuthenticated()">
@@ -86,6 +92,10 @@
     <div class="container">
         <div th:if="${msgExito ne null}" class="alert alert-success alert-dismissible my-3">
             [[${msgExito}]]
+            <button class="btn btn-close" type="button" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${msgError ne null}" class="alert alert-danger alert-dismissible my-3">
+            [[${msgError}]]
             <button class="btn btn-close" type="button" data-bs-dismiss="alert"></button>
         </div>
     </div>
