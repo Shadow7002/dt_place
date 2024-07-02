@@ -85,6 +85,9 @@ public class Capa {
 
     private Integer eliminado;
 
+    @Transient
+    private boolean inscrito;
+
     public Capa(){}
 
     public Integer getId() {

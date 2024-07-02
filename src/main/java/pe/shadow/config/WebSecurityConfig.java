@@ -29,13 +29,13 @@ public class WebSecurityConfig {
                 //configurar los acceso o permisos a la rutas/urls
                 .authorizeHttpRequests((authz)-> authz
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/capacitaciones/**", "/capacitaciones").authenticated()
+                        .requestMatchers("/capas/**", "/capas").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(customizer -> customizer.accessDeniedHandler(accessDeniedHandlerApp()))
                 .userDetailsService(userDetailsServiceImpl)
-                .logout(logout->logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET")).logoutSuccessUrl("/"));
-
+                .logout(logout->logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET")).logoutSuccessUrl("/"))
+                .csrf().disable();
         return http.build();
     }
 

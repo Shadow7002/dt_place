@@ -12,22 +12,20 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.shadow.model.Capa;
-import pe.shadow.model.Cuestionario;
-import pe.shadow.model.Pregunta;
-import pe.shadow.model.Usuario;
+import pe.shadow.model.*;
 import pe.shadow.repository.CuestionarioRepository;
+import pe.shadow.repository.OpcionRepository;
 import pe.shadow.repository.PreguntaRepository;
 import pe.shadow.repository.UsuarioRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.EnumSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin/cuestionarios")
-public class CuestionarioController {
+public class CuestionarioAdminController {
 
     @Autowired
     private CuestionarioRepository cuestionarioRepository;
@@ -37,6 +35,9 @@ public class CuestionarioController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private OpcionRepository opcionRepository;
 
     @GetMapping("")
     String index(Model model,
@@ -60,7 +61,9 @@ public class CuestionarioController {
     }
 
     @PostMapping("/nuevo")
-    String insertar(Model model, @Validated Cuestionario cuestionario, BindingResult bindingResult, RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails) {
+    String insertar(Model model, @Validated Cuestionario cuestionario,
+                    BindingResult bindingResult, RedirectAttributes ra,
+                    @AuthenticationPrincipal UserDetails userDetails) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("cuestionario", cuestionario);
             return "admin/cuestionarios/nuevo";
@@ -131,6 +134,14 @@ public class CuestionarioController {
             List<Pregunta> preguntas = preguntaRepository.findByCuestionarioAndEliminado(cuestionario,0);
             model.addAttribute("cuestionario", cuestionario);
             model.addAttribute("preguntas", preguntas);
+            model.addAttribute("pregunta", new Pregunta());
+
+            List<Opcion> opciones = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                opciones.add(new Opcion());
+            }
+            model.addAttribute("opciones", opciones);
+
             return "admin/cuestionarios/view";
         } else {
             throw new IllegalArgumentException("ID inválido: " + id);

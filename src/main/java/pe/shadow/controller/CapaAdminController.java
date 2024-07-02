@@ -64,7 +64,8 @@ public class CapaAdminController {
     }
 
     @PostMapping("/nuevo")
-    String insertar(Model model, @Validated Capa capa, BindingResult bindingResult, RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails) {
+    String insertar(Model model, @Validated Capa capa, BindingResult bindingResult,
+                    RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails) {
         if (capa.getImagen().isEmpty()) {
             bindingResult.rejectValue("imagen", "MultipartNotEmpty");
         }
@@ -102,7 +103,9 @@ public class CapaAdminController {
     }
 
     @PostMapping("/editar/{id}")
-    String actualizar(Model model, @PathVariable("id") Integer id,@Validated Capa capa, BindingResult bindingResult, RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails)
+    String actualizar(Model model, @PathVariable("id") Integer id,
+                      @Validated Capa capa, BindingResult bindingResult,
+                      RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails)
     {
         if (capa.getImagen().isEmpty())
         {
