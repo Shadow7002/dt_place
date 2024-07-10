@@ -12,13 +12,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.shadow.model.Cuestionario;
-import pe.shadow.model.Opcion;
-import pe.shadow.model.Pregunta;
-import pe.shadow.model.Usuario;
+import pe.shadow.model.*;
 import pe.shadow.repository.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/cuestionarios")
@@ -39,10 +37,25 @@ public class CuestionarioController {
     @Autowired
     private EvaluacionRepository evaluacionRepository;
 
+    @Autowired
+    private InscripcionRepository inscripcionRepository;
+
     @GetMapping("")
     String index(Model model,
                  @PageableDefault(size = 5, sort = "nombre") Pageable pageable,
-                 @RequestParam(required = false) String nombre) {
+                 @RequestParam(required = false) String nombre,
+                 @AuthenticationPrincipal UserDetails userDetails,
+                 RedirectAttributes ra) {
+
+        Usuario usuario = usuarioRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Verificar número de capas inscritas por el usuario
+        List<Inscripcion> capasInscritas = inscripcionRepository.findByUsuarioAndEliminado(usuario, 0);
+        if (capasInscritas.size() < 3) {
+            ra.addFlashAttribute("msgError", "Debes inscribirte a las 3 capacitaciones");
+            return "redirect:/capas";
+        }
 
         Page<Cuestionario> cuestionarios;
         if (nombre != null && !nombre.trim().isEmpty()) {
@@ -50,6 +63,26 @@ public class CuestionarioController {
         } else {
             cuestionarios = cuestionarioRepository.findByEliminado(0, pageable);
         }
+
+        // Obtener todas las evaluaciones del usuario en una sola consulta
+        List<Evaluacion> evaluaciones = evaluacionRepository.findByUsuarioCreacion(usuario);
+
+        // Crear un mapa de calificaciones por id de cuestionario
+        Map<Integer, Integer> mapCalificaciones = new HashMap<>();
+        evaluaciones.forEach(evaluacion -> {
+            mapCalificaciones.put(evaluacion.getCuestionario().getId(), evaluacion.getPuntaje());
+        });
+
+        // Asignar la calificación y marcar los cuestionarios como evaluados
+        cuestionarios.forEach(cuestionario -> {
+            if (mapCalificaciones.containsKey(cuestionario.getId())) {
+                cuestionario.setCalificacion(mapCalificaciones.get(cuestionario.getId()));
+                cuestionario.setEvaluado(true);
+            } else {
+                cuestionario.setEvaluado(false);
+            }
+        });
+
         model.addAttribute("cuestionarios", cuestionarios);
         return "cuestionarios/index";
     }

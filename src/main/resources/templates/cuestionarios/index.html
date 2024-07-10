@@ -44,8 +44,8 @@
                     <thead>
                     <tr>
                         <th>ID</a></th>
-                        <th><a class="sorted" sd:pagination-sort="nombre" >Nombre</a></th>
-                        <th>Calificación</a></th>
+                        <th>Nombre</th>
+                        <th>Calificación Max.</a></th>
                         <th></th>
                     </tr>
                     </thead>
@@ -62,10 +62,14 @@
                         </td>
                         <td class="text-center">
                             <div class="btn-group btn-group-sm">
-                                <button type="button" class="btn btn-primary"
-                                        th:data-id="${cuestionario.id}"
+                                <span th:if="${cuestionario.evaluado}">
+                                    Calificación: <span th:text="${cuestionario.calificacion}"></span>
+                                </span>
+                                <button th:unless="${cuestionario.evaluado}"
+                                        class="btn btn-primary"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#modalEleccion">
+                                        data-bs-target="#modalEleccion"
+                                        th:data-id="${cuestionario.id}">
                                     Rendir examen
                                 </button>
                             </div>
