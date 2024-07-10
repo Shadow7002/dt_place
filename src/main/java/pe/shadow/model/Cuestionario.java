@@ -46,6 +46,12 @@ public class Cuestionario {
     @JoinColumn(name = "id_usuario_actualizacion", nullable = false)
     private Usuario usuarioActualizacion;
 
+    @Transient
+    private Integer calificacion;
+
+    @Transient
+    private boolean evaluado;
+
     public Cuestionario() {
     }
 
@@ -111,5 +117,21 @@ public class Cuestionario {
 
     public void setUsuarioActualizacion(Usuario usuarioActualizacion) {
         this.usuarioActualizacion = usuarioActualizacion;
+    }
+
+    public boolean isEvaluado() {
+        return evaluado;
+    }
+
+    public void setEvaluado(boolean evaluado) {
+        this.evaluado = evaluado;
+    }
+
+    public Integer getCalificacion() {
+        return calificacion;
+    }
+
+    public void setCalificacion(Integer calificacion) {
+        this.calificacion = calificacion;
     }
 }

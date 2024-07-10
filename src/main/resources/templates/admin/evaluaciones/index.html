@@ -49,23 +49,13 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each ="evaluacion : ${evaluacions}" th:object="${evaluacion}" th:if="${inscripcion.eliminado == 0}">
-                        <td>
-                            <div th:text="*{id}"></div>
-                        </td>
-                        <td>
-                            <div th:text="*{usuario.email}"></div>
-                        </td>
-                        <td>
-                            <div th:text="*{cuestionario.nombre}"></div>
-                        </td>
-                        <td>
-                            <div th:text="*{cuestionario.calificacionMaxima}"></div>
-                        </td>
-                        <td>
-                            <div th:text="${evaluacion.fechaCreacion}"></div>
-                        </td>
-
+                    <tr th:each="evaluacion : ${evaluacions}">
+                        <td th:text="${evaluacion.id}"></td>
+                        <td th:text="${evaluacion.usuarioCreacion.email}"></td>
+                        <td th:text="${evaluacion.cuestionario.nombre}"></td>
+                        <td th:text="${evaluacion.puntaje}"></td>
+                        <td th:text="${evaluacion.fechaCreacion}"></td>
+                    </tr>
                     </tbody>
                 </table>
 
