@@ -76,10 +76,10 @@
             });
 
             // Asegurarse de que solo un checkbox esté marcado a la vez
-            document.querySelectorAll('input[type=checkbox][name$=Correcta]').forEach(function (checkbox) {
+            document.querySelectorAll('input[type=checkbox][name$=correcta]').forEach(function (checkbox) {
                 checkbox.addEventListener('change', function () {
                     if (this.checked) {
-                        document.querySelectorAll('input[type=checkbox][name$=Correcta]').forEach(function (otherCheckbox) {
+                        document.querySelectorAll('input[type=checkbox][name$=correcta]').forEach(function (otherCheckbox) {
                             if (otherCheckbox !== checkbox) {
                                 otherCheckbox.checked = false;
                             }

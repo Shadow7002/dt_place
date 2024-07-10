@@ -30,6 +30,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authz)-> authz
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/capas/**", "/capas").authenticated()
+                        .requestMatchers("/cuestionarios/**", "/cuestionarios").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(customizer -> customizer.accessDeniedHandler(accessDeniedHandlerApp()))

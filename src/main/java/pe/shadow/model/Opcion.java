@@ -22,8 +22,6 @@ public class Opcion {
 
     private Boolean esCorrecta;
 
-    private Integer puntos;
-
     private Integer eliminado;
 
     private LocalDateTime fechaCreacion;
@@ -82,14 +80,6 @@ public class Opcion {
 
     public void setEsCorrecta(Boolean esCorrecta) {
         this.esCorrecta = esCorrecta;
-    }
-
-    public Integer getPuntos() {
-        return puntos;
-    }
-
-    public void setPuntos(Integer puntos) {
-        this.puntos = puntos;
     }
 
     public Integer getEliminado() {

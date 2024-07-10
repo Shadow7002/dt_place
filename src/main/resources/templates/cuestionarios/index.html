@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}"
+      xmlns:sd="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Cuestionarios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" integrity="sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFpStnqpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#modalEleccion').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Botón que abrió el modal
+                var idCuestionario = button.data('id'); // Extrae la información del data-* atributo
+                var modal = $(this);
+                modal.find('#confirmarEvaluacion').data('id', idCuestionario);
+                console.log(idCuestionario); // Para depuración
+            });
+
+            $('#confirmarEvaluacion').on('click', function () {
+                var idCuestionario = $(this).data('id');
+                window.location.href = '/cuestionarios/view/' + idCuestionario;
+            });
+        });
+    </script>
+
+</head>
+<body>
+    <div layout:fragment="contenido_dinamico">
+        <div class="container">
+            <h1>Cuestionarios</h1>
+            <!-- Tabla -->
+            <div class="table-responsive-sm mt-3">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>ID</a></th>
+                        <th><a class="sorted" sd:pagination-sort="nombre" >Nombre</a></th>
+                        <th>Calificación</a></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each ="cuestionario : ${cuestionarios}" th:object="${cuestionario}" th:if="${cuestionario.eliminado == 0}">
+                        <td>
+                            <div th:text="*{id}"></div>
+                        </td>
+                        <td>
+                            <div th:text="*{nombre}"></div>
+                        </td>
+                        <td>
+                            <div th:text="*{calificacionMaxima}"></div>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-primary"
+                                        th:data-id="${cuestionario.id}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEleccion">
+                                    Rendir examen
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div sd:pagination-summary="">info</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <nav class="pull-right">
+                            <ul class="pagination" sd:pagination-split="7" sd:pagination="full">
+                                <!-- Pagination created by SpringDataDialect, this content is just for mockup -->
+                                <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                                <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Modal de Elección -->
+                <div class="modal fade" id="modalEleccion" tabindex="-1" aria-labelledby="modalEleccionLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalEleccionLabel">Confirmar Evaluación</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>¿Estás seguro de rendir el examen? Solo tendrás una oportunidad</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" id="confirmarEvaluacion">Rendir examen</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
