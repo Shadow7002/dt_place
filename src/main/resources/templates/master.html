@@ -59,8 +59,14 @@
                     <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                         <a href="/admin/inscripciones" class="nav-link">Inscripciones</a>
                     </li>
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a href="/admin/evaluaciones" class="nav-link">Evaluaciones</a>
+                    </li>
                     <li class="nav-item" sec:authorize="hasRole('ROLE_USUARIO')">
                         <a href="/capas" class="nav-link">Capacitaciones</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_USUARIO')">
+                        <a href="/cuestionarios" class="nav-link">Evaluaciones</a>
                     </li>
                 </ul>
 
