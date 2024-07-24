@@ -65,9 +65,9 @@
                     <li class="nav-item" sec:authorize="hasRole('ROLE_USUARIO')">
                         <a href="/capas" class="nav-link">Capacitaciones</a>
                     </li>
-                    <li class="nav-item" sec:authorize="hasRole('ROLE_USUARIO')">
+                    <!-- <li class="nav-item" sec:authorize="hasRole('ROLE_USUARIO')">
                         <a href="/cuestionarios" class="nav-link">Evaluaciones</a>
-                    </li>
+                    </li> -->
                 </ul>
 
                 <div sec:authorize="!isAuthenticated()">

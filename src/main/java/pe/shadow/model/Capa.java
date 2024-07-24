@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
+
 @Data
 @Entity
 @Audited
@@ -87,6 +89,11 @@ public class Capa {
 
     @Transient
     private boolean inscrito;
+
+    @ManyToOne
+    @JoinColumn(name = "idcuestionario")
+    @Audited(targetAuditMode = NOT_AUDITED)
+    private Cuestionario cuestionario;
 
     public Capa(){}
 
@@ -208,5 +215,13 @@ public class Capa {
 
     public void setUsuarioActualizacion(Usuario usuarioActualizacion) {
         this.usuarioActualizacion = usuarioActualizacion;
+    }
+
+    public Cuestionario getCuestionario() {
+        return cuestionario;
+    }
+
+    public void setCuestionario(Cuestionario cuestionario) {
+        this.cuestionario = cuestionario;
     }
 }

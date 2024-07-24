@@ -13,17 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.shadow.model.Capa;
-import pe.shadow.model.Inscripcion;
-import pe.shadow.model.Usuario;
-import pe.shadow.repository.CapaRepository;
-import pe.shadow.repository.InscripcionRepository;
-import pe.shadow.repository.UsuarioRepository;
+import pe.shadow.model.*;
+import pe.shadow.repository.*;
 import pe.shadow.service.FileSystemStorageService;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -41,6 +35,18 @@ public class CapaController {
 
     @Autowired
     private InscripcionRepository inscripcionRepository;
+
+    @Autowired
+    private ArchivoRepository archivoRepository;
+
+    @Autowired
+    private VistoRepository archivoVistoRepository;
+
+    @Autowired
+    CuestionarioRepository cuestionarioRepository;
+
+    @Autowired
+    EvaluacionRepository evaluacionRepository;
 
     @GetMapping("")
     String index(Model model,
@@ -86,11 +92,48 @@ public class CapaController {
 
         Capa capa = optionalCapa.get();
 
+        // Obtener cuestionarios relacionados con la capacitación
+        List<Cuestionario> cuestionarios = cuestionarioRepository.findByIdAndEliminado(id,0);
+
         // Verificar si el usuario está inscrito en esta capa
         Usuario usuario = usuarioRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
+        // Obtener archivos de la capacitación
+        List<Archivo> todosArchivos = archivoRepository.findByIdcapa(id);
+        List<Visto> archivosVistos = archivoVistoRepository.findByUsuarioCreacionAndArchivo_Idcapa(usuario, id);
+        List<Archivo> vistos = archivosVistos.stream()
+                .map(Visto::getArchivo)
+                .collect(Collectors.toList());
+
+        // Contar cuántos archivos han sido vistos
+        long vistosSize = vistos.size();
+
+        // Obtener todas las evaluaciones del usuario en una sola consulta
+        List<Evaluacion> evaluaciones = evaluacionRepository.findByUsuarioCreacion(usuario);
+
+        // Crear un mapa de calificaciones por id de cuestionario
+        Map<Integer, Integer> mapCalificaciones = new HashMap<>();
+        evaluaciones.forEach(evaluacion -> {
+            mapCalificaciones.put(evaluacion.getCuestionario().getId(), evaluacion.getPuntaje());
+        });
+
+        // Asignar la calificación y marcar los cuestionarios como evaluados
+        cuestionarios.forEach(cuestionario -> {
+            if (mapCalificaciones.containsKey(cuestionario.getId())) {
+                cuestionario.setCalificacion(mapCalificaciones.get(cuestionario.getId()));
+                cuestionario.setEvaluado(true);
+            } else {
+                cuestionario.setEvaluado(false);
+            }
+        });
+
         model.addAttribute("capa", capa);
+        model.addAttribute("archivos", todosArchivos);
+        model.addAttribute("vistos", vistos);
+        model.addAttribute("vistosSize", vistosSize);
+        model.addAttribute("totalArchivos", todosArchivos.size());
+        model.addAttribute("cuestionarios", cuestionarios);
         return "/capas/view";
     }
 }

@@ -1,28 +1,25 @@
 package pe.shadow.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.envers.Audited;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-public class Evaluacion {
+@Table(name = "archivo_visto")
+public class Visto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="idevaluacion")
-    private Integer id;
+    private Integer idvisto;
 
     @ManyToOne
-    @JoinColumn(name = "idcuestionario")
-    private Cuestionario cuestionario;
+    @JoinColumn(name = "idfile", nullable = false)
+    private Archivo archivo;
 
     @ManyToOne
-    @JoinColumn(name = "id_usuario_creacion")
+    @JoinColumn(name = "id_usuario_creacion", nullable = false)
     private Usuario usuarioCreacion;
-
-    private int puntaje;
 
     private LocalDateTime fechaCreacion;
 
@@ -32,23 +29,23 @@ public class Evaluacion {
         fechaCreacion = LocalDateTime.now();
     }
 
-    public Evaluacion() {
+    public Visto() {
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getIdvisto() {
+        return idvisto;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setIdvisto(Integer idvisto) {
+        this.idvisto = idvisto;
     }
 
-    public Cuestionario getCuestionario() {
-        return cuestionario;
+    public Archivo getArchivo() {
+        return archivo;
     }
 
-    public void setCuestionario(Cuestionario cuestionario) {
-        this.cuestionario = cuestionario;
+    public void setArchivo(Archivo archivo) {
+        this.archivo = archivo;
     }
 
     public Usuario getUsuarioCreacion() {
@@ -57,14 +54,6 @@ public class Evaluacion {
 
     public void setUsuarioCreacion(Usuario usuarioCreacion) {
         this.usuarioCreacion = usuarioCreacion;
-    }
-
-    public int getPuntaje() {
-        return puntaje;
-    }
-
-    public void setPuntaje(int puntaje) {
-        this.puntaje = puntaje;
     }
 
     public LocalDateTime getFechaCreacion() {

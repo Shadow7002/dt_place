@@ -1,9 +1,7 @@
 package pe.shadow.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -120,6 +118,22 @@ public class ArchivoController {
 
         // Devolver el archivo como un array de bytes en el cuerpo de la respuesta
         return new ResponseEntity<>(archivo.getFile(), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/files/{id}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getFile(@PathVariable Integer id) {
+        Archivo archivo = archivoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Archivo no encontrado"));
+
+        byte[] fileContent = archivo.getFile(); // Obtén el contenido del archivo
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM); // O el tipo MIME adecuado
+        headers.setContentDisposition(ContentDisposition.builder("attachment")
+                .filename(archivo.getNombre()) // Nombre del archivo
+                .build());
+
+        return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
     }
 
 }
