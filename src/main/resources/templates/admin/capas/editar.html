@@ -106,6 +106,15 @@
                     </div>
 
                     <div class="mb-2">
+                        <label for="idCuestionario">Cuestionario:</label>
+                        <select id="idCuestionario" name="idCuestionario" class="form-select">
+                            <option th:each="cuestionario : ${cuestionarios}"
+                                    th:value="${cuestionario.id}"
+                                    th:text="${cuestionario.nombre}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-2">
                         <label>Imagen Actual</label>
                         <div>
                             <img th:if="${capa.rutaImagen != null}"

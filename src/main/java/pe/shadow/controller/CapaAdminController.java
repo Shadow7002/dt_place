@@ -13,13 +13,18 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.shadow.model.Capa;
+import pe.shadow.model.Cuestionario;
+import pe.shadow.model.Evaluacion;
 import pe.shadow.model.Usuario;
 import pe.shadow.repository.CapaRepository;
+import pe.shadow.repository.CuestionarioRepository;
+import pe.shadow.repository.EvaluacionRepository;
 import pe.shadow.repository.UsuarioRepository;
 import pe.shadow.service.FileSystemStorageService;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -34,6 +39,9 @@ public class CapaAdminController {
 
     @Autowired
     private FileSystemStorageService fileSystemStorageService;
+
+    @Autowired
+    private CuestionarioRepository cuestionarioRepository;
 
     @GetMapping("")
     String index(Model model,
@@ -59,13 +67,18 @@ public class CapaAdminController {
 
     @GetMapping("/nuevo")
     String nuevo(Model model) {
+        List<Cuestionario> cuestionarios = cuestionarioRepository.findAll();
+
+
         model.addAttribute("capa", new Capa());
+        model.addAttribute("cuestionarios", cuestionarioRepository.findAll());
         return "admin/capas/nuevo";
     }
 
     @PostMapping("/nuevo")
     String insertar(Model model, @Validated Capa capa, BindingResult bindingResult,
-                    RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails) {
+                    RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails,
+                    @RequestParam("idCuestionario") Integer idCuestionario) {
         if (capa.getImagen().isEmpty()) {
             bindingResult.rejectValue("imagen", "MultipartNotEmpty");
         }
@@ -88,6 +101,11 @@ public class CapaAdminController {
             throw new IllegalArgumentException("Estado inválido: " + capa.getEstado());
         }
 
+        // Asignar la evaluación seleccionada
+        Cuestionario cuestionario = cuestionarioRepository.findById(idCuestionario)
+                .orElseThrow(() -> new IllegalArgumentException("Evaluación no encontrada"));
+        capa.setCuestionario(cuestionario);
+
         capaRepository.save(capa);
 
         ra.addFlashAttribute("msgExito", "La capacitación fue registrada exitosamente");
@@ -98,14 +116,19 @@ public class CapaAdminController {
     String editar(Model model, @PathVariable("id") Integer id)
     {
         Capa capa = capaRepository.getById(id);
+        List<Cuestionario> cuestionarios = cuestionarioRepository.findAll();
+
+
         model.addAttribute("capa", capa);
+        model.addAttribute("cuestionarios", cuestionarioRepository.findAll());
         return "admin/capas/editar";
     }
 
     @PostMapping("/editar/{id}")
     String actualizar(Model model, @PathVariable("id") Integer id,
                       @Validated Capa capa, BindingResult bindingResult,
-                      RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails)
+                      RedirectAttributes ra, @AuthenticationPrincipal UserDetails userDetails,
+                      @RequestParam("idCuestionario") Integer idCuestionario)
     {
         if (capa.getImagen().isEmpty())
         {
@@ -138,6 +161,11 @@ public class CapaAdminController {
         Usuario usuario = usuarioRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         capaFromDB.setUsuarioActualizacion(usuario);
+
+        // Asignar la evaluación seleccionada
+        Cuestionario cuestionario = cuestionarioRepository.findById(idCuestionario)
+                .orElseThrow(() -> new IllegalArgumentException("Evaluación no encontrada"));
+        capaFromDB.setCuestionario(cuestionario);
 
         capaRepository.save(capaFromDB);
 

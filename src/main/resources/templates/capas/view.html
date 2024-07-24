@@ -24,6 +24,50 @@
             object-fit: cover;
         }
     </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" integrity="sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFpStnqpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#modalEleccion').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Botón que abrió el modal
+                var idCuestionario = button.data('id'); // Extrae la información del data-* atributo
+                var modal = $(this);
+                modal.find('#confirmarEvaluacion').data('id', idCuestionario);
+                console.log(idCuestionario); // Para depuración
+            });
+
+            $('#confirmarEvaluacion').on('click', function () {
+                var idCuestionario = $(this).data('id');
+                window.location.href = '/cuestionarios/view/' + idCuestionario;
+            });
+        });
+    </script>
+
+    <script>
+        document.getElementById('visto-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita el envío del formulario de la manera tradicional
+
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Actualizar la página actual
+                    window.location.reload();
+                } else {
+                    console.error('Error al marcar el archivo como visto.');
+                }
+            });
+        });
+    </script>
 </head>
 <body>
 <div layout:fragment="contenido_dinamico">
@@ -66,6 +110,11 @@
                                 type="button" role="tab" aria-controls="recursos" aria-selected="false">Recursos
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="exam-tab" data-bs-toggle="tab" data-bs-target="#exam"
+                                type="button" role="tab" aria-controls="exam" aria-selected="false">Evaluación
+                        </button>
+                    </li>
                     <!-- Agrega más tabs según necesites -->
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -84,20 +133,97 @@
                     <div class="tab-pane fade" id="recursos" role="tabpanel" aria-labelledby="recursos-tab">
                         <!-- Contenido de Recursos -->
                         <div class="mt-4">
-                            <!-- Aquí puedes listar los recursos disponibles para la capacitación -->
-                            <p>Listado de recursos...</p>
+                            <h3>Recursos</h3>
+                            <div class="list-group">
+                                <div th:each="archivo : ${archivos}">
+                                    <div class="d-flex justify-content-between align-items-center list-group-item list-group-item-action">
+                                        <!-- Enlace al archivo -->
+                                        <a th:href="@{/api/archivos/files/{id} (id=${archivo.id})}" th:text="${archivo.nombre}"></a>
+                                        <form id="visto-form" action="/archivo/visto" method="post" class="d-inline">
+                                            <input type="hidden" name="idfile" th:value="${archivo.id}">
+                                            <button type="submit" class="btn btn-link text-decoration-none">
+                                                <svg class="svg-inline--fa fa-circle" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
+                                                    <path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512z"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <h5>Progreso:
+                                <span th:text="${vistosSize != null ? vistosSize : 0}"></span> de
+                                <span th:text="${totalArchivos != null ? totalArchivos : 0}"></span>
+                            </h5>
                         </div>
                     </div>
-                    <!-- Agrega más contenido para cada tab según necesites -->
+                    <!-- Tab de Cuestionario -->
+                    <div class="tab-pane fade" id="exam" role="tabpanel" aria-labelledby="exam-tab">
+                        <!-- Contenido de Cuestionario -->
+                        <div class="table-responsive-sm mt-3">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>ID</a></th>
+                                    <th>Nombre</th>
+                                    <th>Calificación Max.</a></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each ="cuestionario : ${cuestionarios}" th:object="${cuestionario}" th:if="${cuestionario.eliminado == 0}">
+                                    <td>
+                                        <div th:text="*{id}"></div>
+                                    </td>
+                                    <td>
+                                        <div th:text="*{nombre}"></div>
+                                    </td>
+                                    <td>
+                                        <div th:text="*{calificacionMaxima}"></div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                    <span th:if="${cuestionario.evaluado}">
+                                        Calificación: <span th:text="${cuestionario.calificacion}"></span>
+                                    </span>
+                                            <button th:unless="${cuestionario.evaluado}"
+                                                    class="btn btn-primary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalEleccion"
+                                                    th:data-id="${cuestionario.id}">
+                                                Rendir examen
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Modal de Elección -->
+                            <div class="modal fade" id="modalEleccion" tabindex="-1" aria-labelledby="modalEleccionLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalEleccionLabel">Confirmar Evaluación</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>¿Estás seguro de rendir el examen? Solo tendrás una oportunidad</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="button" class="btn btn-primary" id="confirmarEvaluacion">Rendir examen</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Agregar más contenido para cada tab según se necesite -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-Gn5384xqQ1ao0xqos9ggtxuHog+8WPGmk9aYl9NPr1zY4DG+0Qin1FLmiKshY/sP" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-rH7Wf41bNNf+Tpo2Gq6ZJOlzt+A/2oKTIyE3paeTUHf8N8aWj5fB+I0dGFpLPKoL" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-lIaFz9n3J0UMS+Z8qk5lW4Gzmc+D7R/3DkA3IzVv2LTCiV6+3PLKl+U8QvBWfPqJ" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" integrity="sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFpStnqpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </body>
 </html>
